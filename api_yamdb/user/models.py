@@ -17,7 +17,9 @@ class CustomUser(AbstractUser):
         null=True,
         unique=True,
     )
-    email = models.EmailField(verbose_name='Email')
+    email = models.EmailField(verbose_name='Email',
+                              unique=True,
+                              )
     first_name = models.CharField(
         verbose_name='Имя',
         max_length=50,
@@ -39,6 +41,9 @@ class CustomUser(AbstractUser):
         blank=True,
     )
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', ]
+
     @property
     def is_moderator(self):
         return self.role == self.MODERATOR
@@ -51,3 +56,10 @@ class CustomUser(AbstractUser):
         ordering = ['id', ]
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+        constraints = [
+            models.CheckConstraint(
+                check=~models.Q(username__iexact='me'),
+                name='username_is_not_me'
+            )
+        ]
