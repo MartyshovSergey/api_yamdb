@@ -7,17 +7,19 @@ class Category(models.Model):
 
     class Meta:
         verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
     def __str__(self) -> str:
         return self.name
 
 
-class Ganre(models.Model):
+class Genre(models.Model):
     name = models.CharField(verbose_name='Название')
     slug = models.SlugField(unique=True)
 
     class Meta:
         verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
 
     def __str__(self) -> str:
         return self.name
@@ -43,9 +45,14 @@ class Title(models.Model):
         blank=True,
         related_name='titles'
     )
+    description = models.TextField(
+        null=True,
+        verbose_name='Описание'
+    )
 
     class Meta:
         verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
 
     def __str__(self) -> str:
         return self.name
