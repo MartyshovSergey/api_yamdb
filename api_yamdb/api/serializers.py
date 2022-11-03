@@ -76,7 +76,7 @@ class TitlePostSerializer(serializers.ModelSerializer):
         model = Title
 
 
-class ISerializer(serializers.ModelSerializer):
+class MeSerializer(serializers.ModelSerializer):
     role = serializers.CharField(read_only=True)
 
     class Meta:
