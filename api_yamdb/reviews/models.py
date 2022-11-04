@@ -132,3 +132,6 @@ class Comment(models.Model):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         ordering = ['pub_date']
+
+    def __str__(self):
+        return f'{self.author}, {self.text}, {self.pub_date}'
