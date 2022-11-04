@@ -1,22 +1,36 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from reviews.models import Category, Genre, Title
 from user.models import CustomUser
 
-RESTRICTED_USERNAME = 'me'
 
-
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
+        fields = '__all__'
         model = CustomUser
-        fields = (
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'bio',
-            'role'
-        )
+
+
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        validators=[UniqueValidator(queryset=CustomUser.objects.all())])
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=CustomUser.objects.all())])
+
+    def validate_username(self, data):
+        if data.lower() == 'me':
+            raise serializers.ValidationError('Запрещено использовать "me" в'
+                                              ' качестве имени пользователя!')
+        return data
+
+    class Meta:
+        fields = ('username', 'email',)
+        model = CustomUser
+
+
+class JWTTokenSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    confirmation_code = serializers.CharField()
 
 
 class MeSerializer(serializers.ModelSerializer):
@@ -33,17 +47,21 @@ class MeSerializer(serializers.ModelSerializer):
             'role'
         )
 
+    class Meta:
+        fields = '__all__'
+        model = Title
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        exclude = ('id', )
+        exclude = ('id',)
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        exclude = ('id', )
+        exclude = ('id',)
 
 
 class TitleRWSerializer(serializers.ModelSerializer):
