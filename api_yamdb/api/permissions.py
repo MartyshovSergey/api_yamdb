@@ -11,7 +11,7 @@ class IsAdminOrReadOnly(BasePermission):
 
 
 class IsAdminModeratorOwnerOrReadOnly(BasePermission):
-    """Если не Администратор, Модератора, Владелец, только права на чтение."""
+    """Если не Администратор, Модератор, Владелец, только права на чтение."""
 
     def has_object_permission(self, request, view, obj):
         return (request.method in SAFE_METHODS
