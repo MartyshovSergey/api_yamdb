@@ -1,65 +1,79 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from .validators import validate_username
+
+
+ADMIN = 'admin'
+MODERATOR = 'moderator'
+USER = 'user'
+
+ROLE_CHOICES = [
+    (USER, USER),
+    (ADMIN, ADMIN),
+    (MODERATOR, MODERATOR),
+]
+
 
 class CustomUser(AbstractUser):
-    ADMIN = 'admin'
-    MODERATOR = 'moderator'
-    USER = 'user'
-    ROLES = (
-        (ADMIN, 'Administrator'),
-        (MODERATOR, 'Moderator'),
-        (USER, 'User'),
-    )
     username = models.CharField(
-        verbose_name='Имя пользователя',
+        validators=(validate_username,),
         max_length=150,
-        null=True,
         unique=True,
+        blank=False,
+        null=False
     )
-    email = models.EmailField(verbose_name='Email',
-                              unique=True,
-                              )
-    first_name = models.CharField(
-        verbose_name='Имя',
-        max_length=50,
-        null=True,
-    )
-    last_name = models.CharField(
-        verbose_name='Фамилия',
-        max_length=50,
-        null=True,
+    email = models.EmailField(
+        max_length=254,
+        unique=True,
+        blank=False,
+        null=False
     )
     role = models.CharField(
-        verbose_name='Роль',
-        max_length=50,
-        choices=ROLES,
+        'роль',
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default=USER,
+        blank=True
     )
     bio = models.TextField(
-        verbose_name='Роль',
-        null=True,
+        'биография',
         blank=True,
     )
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', ]
+    first_name = models.CharField(
+        'имя',
+        max_length=150,
+        blank=True
+    )
+    last_name = models.CharField(
+        'фамилия',
+        max_length=150,
+        blank=True
+    )
+    confirmation_code = models.CharField(
+        'код подтверждения',
+        max_length=255,
+        null=True,
+        blank=False,
+        default='XXXX'
+    )
 
     @property
-    def is_moderator(self):
-        return self.role == self.MODERATOR
+    def is_user(self):
+        return self.role == USER
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN
+        return self.role == ADMIN
+
+    @property
+    def is_moderator(self):
+        return self.role == MODERATOR
 
     class Meta:
-        ordering = ['id', ]
+        ordering = ('id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
-        constraints = [
-            models.CheckConstraint(
-                check=~models.Q(username__iexact='me'),
-                name='username_is_not_me'
-            )
-        ]
+    def __str__(self):
+        return self.username
