@@ -28,7 +28,6 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'user.apps.UserConfig',
     'reviews.apps.ReviewsConfig',
-    'dotenv',
 ]
 
 MIDDLEWARE = [
