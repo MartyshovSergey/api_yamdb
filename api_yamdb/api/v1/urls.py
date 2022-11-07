@@ -45,8 +45,12 @@ router.register(
     basename='users'
 )
 
+urlpatterns_auth = [
+    path('signup/', APISignup.as_view(), name='signup'),
+    path('token/', APIGetToken.as_view(), name='get_token')
+]
+
 urlpatterns = [
-    path('v1/auth/token/', APIGetToken.as_view(), name='get_token'),
+    path('v1/auth/', include(urlpatterns_auth)),
     path('v1/', include(router.urls)),
-    path('v1/auth/signup/', APISignup.as_view(), name='signup'),
 ]

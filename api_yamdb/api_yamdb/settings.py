@@ -1,6 +1,7 @@
-import os
 from datetime import timedelta
 from dotenv import load_dotenv
+import os
+
 
 load_dotenv()
 
@@ -10,6 +11,8 @@ USER_CHARFIELD_LENGTH = 150
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv('SECRET_KEY')
+
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
 DEBUG = True
 
@@ -102,8 +105,6 @@ AUTH_USER_MODEL = 'user.CustomUser'
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
-
-DEFAULT_FROM_EMAIL = 'Sergey@localhost'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
