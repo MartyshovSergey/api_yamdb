@@ -1,27 +1,15 @@
-from django.contrib.auth.tokens import default_token_generator
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
+from api_yamdb.settings import REVIEW_CHARFIELD_LENGTH
 from user.models import CustomUser
 from .validators import year_valid
-
-
-@receiver(post_save, sender=CustomUser)
-def post_save(sender, instance, created, **kwargs):
-    if created:
-        confirmation_code = default_token_generator.make_token(
-            instance
-        )
-        instance.confirmation_code = confirmation_code
-        instance.save()
 
 
 class Category(models.Model):
     name = models.CharField(
         'Название категории',
-        max_length=200
+        max_length=REVIEW_CHARFIELD_LENGTH
     )
     slug = models.SlugField(
         'slug категории',
@@ -34,7 +22,7 @@ class Category(models.Model):
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return f'{self.name} {self.name}'
+        return f'{self.name}'
 
 
 class Comment(models.Model):
@@ -46,7 +34,7 @@ class Comment(models.Model):
     )
     text = models.CharField(
         'текст комментария',
-        max_length=200
+        max_length=REVIEW_CHARFIELD_LENGTH
     )
     author = models.ForeignKey(
         CustomUser,
@@ -65,13 +53,13 @@ class Comment(models.Model):
         verbose_name_plural = 'Комментарии'
 
     def __str__(self):
-        return self.text
+        return f'{self.text[0:30]}'
 
 
 class Genre(models.Model):
     name = models.CharField(
         'Название жанра',
-        max_length=200
+        max_length=REVIEW_CHARFIELD_LENGTH
     )
     slug = models.SlugField(
         'slug жанра',
@@ -84,13 +72,13 @@ class Genre(models.Model):
         verbose_name_plural = 'Жанры'
 
     def __str__(self):
-        return f'{self.name} {self.name}'
+        return f'{self.name}'
 
 
 class Title(models.Model):
     name = models.CharField(
         'Название',
-        max_length=200,
+        max_length=REVIEW_CHARFIELD_LENGTH,
         db_index=True
     )
     year = models.IntegerField(
@@ -133,7 +121,7 @@ class Review(models.Model):
         verbose_name='произведение'
     )
     text = models.CharField(
-        max_length=200
+        max_length=REVIEW_CHARFIELD_LENGTH
     )
     author = models.ForeignKey(
         CustomUser,
@@ -166,4 +154,4 @@ class Review(models.Model):
         ordering = ('pub_date',)
 
     def __str__(self):
-        return self.text
+        return f'{self.text[0:50]}'
