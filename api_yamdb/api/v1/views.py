@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from api_yamdb.settings import DEFAULT_FROM_EMAIL
 from reviews.models import (Category,
                             Genre,
                             Review,
@@ -19,7 +20,7 @@ from reviews.models import (Category,
 from .filters import TitleFilter
 from .mixins import ModelMixinSet
 from .permissions import (IsAdminAuthorModerator,
-                          IsAdminOnly,
+                          IsAdminStaff,
                           IsAdminUserOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, GetTokenSerializer,
@@ -37,13 +38,7 @@ class APIGetToken(APIView):
         serializer = GetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        try:
-            user = CustomUser.objects.get(username=data['username'])
-        except CustomUser.DoesNotExist:
-            return Response(
-                {'username': 'Пользователь не найден!'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+        user = get_object_or_404(CustomUser, username=data['username'])
         if data.get('confirmation_code') == user.confirmation_code:
             token = RefreshToken.for_user(user).access_token
             return Response(
@@ -67,6 +62,7 @@ class APISignup(APIView):
         email = EmailMessage(
             subject=data['email_subject'],
             body=data['email_body'],
+            from_email=DEFAULT_FROM_EMAIL,
             to=[data['to_email']]
         )
         email.send()
@@ -166,7 +162,7 @@ class TitleViewSet(ModelViewSet):
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = (IsAuthenticated, IsAdminOnly,)
+    permission_classes = (IsAuthenticated, IsAdminStaff,)
     lookup_field = 'username'
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
@@ -179,17 +175,10 @@ class UsersViewSet(viewsets.ModelViewSet):
     def get_current_user_info(self, request):
         serializer = UsersSerializer(request.user)
         if request.method == 'PATCH':
-            if request.user.is_admin:
-                serializer = UsersSerializer(
-                    request.user,
-                    data=request.data,
-                    partial=True)
-            else:
-                serializer = NotAdminSerializer(
-                    request.user,
-                    data=request.data,
-                    partial=True)
+            serializer = NotAdminSerializer(
+                request.user, data=request.data, partial=True
+            )
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)

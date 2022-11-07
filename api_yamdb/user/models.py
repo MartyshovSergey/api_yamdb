@@ -1,6 +1,10 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.tokens import default_token_generator
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
+from api_yamdb.settings import USER_CHARFIELD_LENGTH
 from .validators import validate_username
 
 ADMIN = 'admin'
@@ -17,7 +21,7 @@ ROLE_CHOICES = [
 class CustomUser(AbstractUser):
     username = models.CharField(
         validators=(validate_username,),
-        max_length=150,
+        max_length=USER_CHARFIELD_LENGTH,
         unique=True,
         blank=False,
         null=False
@@ -41,12 +45,12 @@ class CustomUser(AbstractUser):
     )
     first_name = models.CharField(
         'имя',
-        max_length=150,
+        max_length=USER_CHARFIELD_LENGTH,
         blank=True
     )
     last_name = models.CharField(
         'фамилия',
-        max_length=150,
+        max_length=USER_CHARFIELD_LENGTH,
         blank=True
     )
     confirmation_code = models.CharField(
@@ -76,3 +80,13 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+@receiver(post_save, sender=CustomUser)
+def post_save(sender, instance, created, **kwargs):
+    if created:
+        confirmation_code = default_token_generator.make_token(
+            instance
+        )
+        instance.confirmation_code = confirmation_code
+        instance.save()
