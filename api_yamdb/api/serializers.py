@@ -1,6 +1,6 @@
-from rest_framework import serializers
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
+from rest_framework import serializers
 
 from reviews.models import (Category,
                             Comment,
@@ -11,9 +11,8 @@ from user.models import CustomUser
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
     class Meta:
-        exclude = ('id', )
+        exclude = ('id',)
         model = Category
         lookup_field = 'slug'
 
@@ -34,9 +33,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
     class Meta:
-        exclude = ('id', )
+        exclude = ('id',)
         model = Genre
         lookup_field = 'slug'
 
@@ -90,8 +88,8 @@ class ReviewSerializer(serializers.ModelSerializer):
         title_id = self.context.get('view').kwargs.get('title_id')
         title = get_object_or_404(Title, pk=title_id)
         if (
-            request.method == 'POST'
-            and Review.objects.filter(title=title, author=author).exists()
+                request.method == 'POST'
+                and Review.objects.filter(title=title, author=author).exists()
         ):
             raise ValidationError(
                 'На одно произведений можно написать только 1 отзыв!'
@@ -104,7 +102,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = CustomUser
         fields = ('email', 'username')

@@ -1,11 +1,10 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.tokens import default_token_generator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from user.models import CustomUser
-
 from .validators import year_valid
 
 
@@ -96,7 +95,7 @@ class Title(models.Model):
     )
     year = models.IntegerField(
         'Год',
-        validators=(year_valid, )
+        validators=(year_valid,)
     )
     category = models.ForeignKey(
         Category,
@@ -161,7 +160,7 @@ class Review(models.Model):
         verbose_name_plural = 'Отзывы'
         constraints = [
             models.UniqueConstraint(
-                fields=('title', 'author', ),
+                fields=('title', 'author',),
                 name='unique review'
             )]
         ordering = ('pub_date',)

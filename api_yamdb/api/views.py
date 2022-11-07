@@ -95,8 +95,8 @@ class CategoryViewSet(ModelMixinSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdminUserOrReadOnly,)
-    filter_backends = (SearchFilter, )
-    search_fields = ('name', )
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
     lookup_field = 'slug'
 
 
@@ -119,13 +119,13 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class GenreViewSet(ModelMixinSet):
     """
-    Cписок жанров.
+    Список жанров.
     """
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (IsAdminUserOrReadOnly,)
     filter_backends = (SearchFilter,)
-    search_fields = ('name', )
+    search_fields = ('name',)
     lookup_field = 'slug'
 
 
@@ -148,13 +148,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class TitleViewSet(ModelViewSet):
     """
-    Cписок всех произведений.
+    Список всех произведений.
     """
     queryset = Title.objects.annotate(
         rating=Avg('reviews__score')
     ).all()
     permission_classes = (IsAdminUserOrReadOnly,)
-    filter_backends = (DjangoFilterBackend, )
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
