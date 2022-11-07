@@ -6,6 +6,7 @@ import os
 load_dotenv()
 
 REVIEW_CHARFIELD_LENGTH = 200
+
 USER_CHARFIELD_LENGTH = 150
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
