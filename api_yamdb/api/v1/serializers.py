@@ -1,7 +1,8 @@
 from django.core.exceptions import ValidationError
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
+from api_yamdb.settings import USER_CHARFIELD_LENGTH
 from reviews.models import (Category,
                             Comment,
                             Genre,
@@ -80,13 +81,11 @@ class ReviewSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        request = self.context['request']
-        author = request.user
+        author = self.context['request'].user
         title_id = self.context.get('view').kwargs.get('title_id')
-        title = get_object_or_404(Title, pk=title_id)
         if (
-                request.method == 'POST'
-                and Review.objects.filter(title=title, author=author).exists()
+            self.context['request'].method == 'POST'
+            and author.reviews.filter(title_id=title_id).exists()
         ):
             raise ValidationError(
                 'На одно произведений можно написать только 1 отзыв!'
@@ -99,6 +98,25 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class SignUpSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        max_length=USER_CHARFIELD_LENGTH,
+        required=True,
+        validators=[UniqueValidator(queryset=CustomUser.objects.all())]
+    )
+
+    email = serializers.EmailField(
+        max_length=254,
+        required=True,
+        validators=[UniqueValidator(queryset=CustomUser.objects.all())]
+    )
+
+    def validate_username(self, username):
+        if username == 'me':
+            raise serializers.ValidationError(
+                "Использование 'me' в качестве username нельзя."
+            )
+        return username
+
     class Meta:
         model = CustomUser
         fields = ('email', 'username')
@@ -113,7 +131,15 @@ class TitleReadSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(read_only=True)
 
     class Meta:
-        fields = '__all__'
+        fields = (
+            'id',
+            'name',
+            'year',
+            'rating',
+            'description',
+            'genre',
+            'category'
+        )
         model = Title
 
 
@@ -129,7 +155,14 @@ class TitleWriteSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
+        fields = (
+            'id',
+            'name',
+            'year',
+            'description',
+            'genre',
+            'category'
+        )
         model = Title
 
 

@@ -2,7 +2,7 @@ from django.core.mail import EmailMessage
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
@@ -19,9 +19,9 @@ from reviews.models import (Category,
                             CustomUser)
 from .filters import TitleFilter
 from .mixins import ModelMixinSet
-from .permissions import (IsAdminAuthorModerator,
-                          IsAdminStaff,
-                          IsAdminUserOrReadOnly)
+from .permissions import (IsAdminOrAuthorOrModerator,
+                          IsAdminOrStaff,
+                          IsAdminOrUserOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, GetTokenSerializer,
                           NotAdminSerializer, ReviewSerializer,
@@ -55,8 +55,6 @@ class APISignup(APIView):
     """
     Код подтверждения на email.
     """
-    permission_classes = (permissions.AllowAny,)
-
     @staticmethod
     def send_email(data):
         email = EmailMessage(
@@ -90,15 +88,11 @@ class CategoryViewSet(ModelMixinSet):
     """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsAdminUserOrReadOnly,)
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsAdminAuthorModerator,)
+    permission_classes = (IsAdminOrAuthorOrModerator,)
 
     def get_queryset(self):
         review = get_object_or_404(
@@ -119,15 +113,11 @@ class GenreViewSet(ModelMixinSet):
     """
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (IsAdminUserOrReadOnly,)
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsAdminAuthorModerator,)
+    permission_classes = (IsAdminOrAuthorOrModerator,)
 
     def get_queryset(self):
         title = get_object_or_404(
@@ -149,7 +139,7 @@ class TitleViewSet(ModelViewSet):
     queryset = Title.objects.annotate(
         rating=Avg('reviews__score')
     ).all()
-    permission_classes = (IsAdminUserOrReadOnly,)
+    permission_classes = (IsAdminOrUserOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
 
@@ -162,7 +152,7 @@ class TitleViewSet(ModelViewSet):
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = (IsAuthenticated, IsAdminStaff,)
+    permission_classes = (IsAuthenticated, IsAdminOrStaff,)
     lookup_field = 'username'
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
