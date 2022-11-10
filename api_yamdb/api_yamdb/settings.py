@@ -8,6 +8,7 @@ load_dotenv()
 REVIEW_CHARFIELD_LENGTH = 200
 
 USER_CHARFIELD_LENGTH = 150
+USER_EMAIL_LENGTH = 254
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

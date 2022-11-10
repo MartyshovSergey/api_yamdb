@@ -3,7 +3,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from api_yamdb.settings import USER_CHARFIELD_LENGTH
+from api_yamdb.settings import USER_CHARFIELD_LENGTH, USER_EMAIL_LENGTH
 from reviews.models import (Category,
                             Comment,
                             Genre,
@@ -108,7 +108,7 @@ class SignUpSerializer(serializers.ModelSerializer):
     )
 
     email = serializers.EmailField(
-        max_length=254,
+        max_length=USER_EMAIL_LENGTH,
         required=True,
         validators=[UniqueValidator(queryset=CustomUser.objects.all())]
     )
