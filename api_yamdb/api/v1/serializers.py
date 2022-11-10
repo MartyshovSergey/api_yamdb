@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
@@ -75,10 +76,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    def validate_score(self, value):
-        if 0 > value > 10:
-            raise serializers.ValidationError('Оценка должна быть от 0 до 10!')
-        return value
+    score = serializers.IntegerField(
+        validators=[
+            MinValueValidator(1, 'Оценка должна быть не меньше 1.'),
+            MaxValueValidator(10, 'Оценка должна быть не больше 10.')
+        ],
+    )
 
     def validate(self, data):
         author = self.context['request'].user
